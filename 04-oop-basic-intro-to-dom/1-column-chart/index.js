@@ -1,43 +1,49 @@
 export default class ColumnChart {
-  constructor(data = {}) {
-    this.data = data.data || [];
-    this.label = data.label;
-    this.value = data.value;
-    this.link = data.link;
-    this.formatHeading = data.formatHeading || ((heading) => heading);
+  constructor({
+    data = [],
+    label = '',
+    link = '',
+    value = 0,
+    formatHeading = heading => heading
+  } = {}) {
+    this.data = data;
+    this.label = label;
+    this.value = value;
+    this.link = link;
+    this.formatHeading = formatHeading;
     this.chartHeight = 50;
     this.maxValue = Math.max(...this.data);
 
     this.render();
   }
 
-  template = ({link, chart}) => `
+  get template() {
+    return `
     <div class="column-chart__title">
       Total ${this.label}
-      ${link}
+      ${this.link}
     </div>
     <div class="column-chart__container">
       <div data-element="header" class="column-chart__header">${this.formatHeading(this.value)}</div>
       <div data-element="body" class="column-chart__chart">
-        ${chart}
+        ${this.chart}
       </div>
     </div>
-  `;
-  linkTemplate = (href) => `<a class="column-chart__link" href="${href}">View all</a>`;
-  chartItemTemplate = ({height, value}) => `<div style="--value: ${height}" data-tooltip="${value}"></div>`;
+  `;}
+
+  createLink = (href) => `<a class="column-chart__link" href="${href}">View all</a>`;
+  createChartItem = ({height, value}) => `<div style="--value: ${height}" data-tooltip="${value}"></div>`;
 
   builder() {
-    let chart = '';
+    this.chart = '';
     for (const item of this.data) {
-      chart += this.chartItemTemplate({
+      this.chart += this.createChartItem({
         height: String(Math.floor(item * (this.chartHeight / this.maxValue))),
         value: (item / this.maxValue * 100).toFixed(0) + '%',
       });
     }
-    return this.template({
-      link: this.link ? this.linkTemplate(this.link) : '',
-      chart,
-    });
+    this.link = this.link ? this.createLink(this.link) : '';
+    return this.template;
   }
 
   render() {
