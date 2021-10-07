@@ -49,7 +49,7 @@ export default class ColumnChart {
   render() {
     const wrapper = document.createElement('div');
     wrapper.classList.add('column-chart');
-    if (!this.data.length) wrapper.classList.add('column-chart_loading');
+    if (!this.data.length) {wrapper.classList.add('column-chart_loading');}
     wrapper.style.setProperty('--chart-height', this.chartHeight);
     wrapper.innerHTML = this.builder();
 
