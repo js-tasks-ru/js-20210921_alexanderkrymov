@@ -1,5 +1,4 @@
 export default class SortableTable {
-  subElements = {};
 
   constructor(headerConfig = [], data = []) {
     this.headerConfig = headerConfig;
@@ -8,14 +7,14 @@ export default class SortableTable {
     this.render();
   }
 
-  get template() {
+  get _template() {
     return `
       <div data-element="productsContainer" class="products-list__container">
         <div class="sortable-table">
 
-          ${this.subElements.header}
+          ${this.header}
 
-          ${this.subElements.body}
+          ${this.body}
 
           <div data-element="loading" class="loading-line sortable-table__loading-line"></div>
 
@@ -31,7 +30,7 @@ export default class SortableTable {
     `;
   }
 
-  get arrowTemplate() {
+  get _arrowTemplate() {
     return `
       <span data-element="arrow" class="sortable-table__sort-arrow">
         <span class="sort-arrow"></span>
@@ -39,67 +38,57 @@ export default class SortableTable {
     `;
   }
 
-  getHeaderCell({id = '', title = '', sortable = false, order = false} = {}) {
+  _getHeaderCell({id = '', title = '', sortable = false, order = false} = {}) {
     return `
       <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}"
         ${order ? `data-order="${order}"` : ''}>
         <span>${title}</span>
-        ${order ? this.arrowTemplate : ''}
+        ${order ? this._arrowTemplate : ''}
       </div>
     `;
   }
 
-  createHeader() {
+  _createHeader() {
     const headerCells = [];
     this.headerConfig.forEach((item) => {
-      headerCells.push(this.getHeaderCell(item));
+      headerCells.push(this._getHeaderCell(item));
     });
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = `
+    this.header = `
       <div data-element="header" class="sortable-table__header sortable-table__row">${headerCells.join('')}</div>
     `;
-    this.subElements.header = wrapper.firstElementChild;
   }
 
-  getDefaultCellTemplate(value) {
+  _getDefaultCellTemplate(value) {
     return `
       <div class="sortable-table__cell">${value}</div>
     `;
   }
 
-  getRow(cells) {
+  _getRow(cells) {
     return `<a href="/products/3d-ochki-epson-elpgs03" class="sortable-table__row">${cells}</a>`;
   }
 
-  createBody() {
+  _createBody() {
     const rows = [];
     this.data.forEach((dataItem) => {
       const cells = [];
       this.headerConfig.forEach((item) => {
         const value = dataItem[item.id];
-        const cell = item.template ? item.template(value) : this.getDefaultCellTemplate(value);
+        const cell = item.template ? item.template(value) : this._getDefaultCellTemplate(value);
         cells.push(cell);
       });
-      rows.push(this.getRow(cells.join('')));
+      rows.push(this._getRow(cells.join('')));
     });
-    const wrapper = document.createElement('div');
-    wrapper.innerHTML = `<div data-element="body" class="sortable-table__body">${rows.join('')}</div>`;
-    this.subElements.body = wrapper.firstElementChild;
+    this.body = `<div data-element="body" class="sortable-table__body">${rows.join('')}</div>`;
   }
 
-  render() {
-    const wrapper = document.createElement('div');
-    this.createHeader();
-    this.createBody();
-    wrapper.innerHTML = this.template;
-
-    this.lastElement = this.element;
-    this.element = wrapper.firstElementChild;
-
-    if (this.lastElement) this.lastElement.replaceWith(wrapper.firstElementChild);
+  _toHTML(htmlString) {
+    const htmlObject = document.createElement('div');
+    htmlObject.innerHTML = htmlString;
+    return htmlObject.firstElementChild;
   }
 
-  sortFunctions = {
+  _sortFunctions = {
     string: (arr, key, order = 'asc') => {
       arr.sort((a, b) => {
         let result = a[key].localeCompare(b[key], ['ru-RU', 'es-US'], {
@@ -126,6 +115,25 @@ export default class SortableTable {
     }
   }
 
+  get subElements() {
+    return {
+      header: this._toHTML(this.header),
+      body: this._toHTML(this.body),
+    };
+  }
+
+  render() {
+    const wrapper = document.createElement('div');
+    this._createHeader();
+    this._createBody();
+
+    this.lastElement = this.element;
+
+    this.element = this._toHTML(this._template);
+
+    if (this.lastElement) this.lastElement.replaceWith(this.element);
+  }
+
   sort(field, order) {
     let sortType = '';
 
@@ -140,7 +148,7 @@ export default class SortableTable {
 
     if (!sortType) return;
 
-    this.sortFunctions[sortType](this.data, field, order);
+    this._sortFunctions[sortType](this.data, field, order);
 
     this.render();
   }
