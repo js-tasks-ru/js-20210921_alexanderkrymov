@@ -35,13 +35,12 @@ export default class ColumnChart {
   createChartItem = ({height, value}) => `<div style="--value: ${height}" data-tooltip="${value}"></div>`;
 
   builder() {
-    this.chart = '';
-    for (const item of this.data) {
-      this.chart += this.createChartItem({
+    this.chart = this.data.map((item) => {
+      return this.createChartItem({
         height: String(Math.floor(item * (this.chartHeight / this.maxValue))),
         value: (item / this.maxValue * 100).toFixed(0) + '%',
       });
-    }
+    }).join('');
     this.link = this.link ? this.createLink(this.link) : '';
     return this.template;
   }
