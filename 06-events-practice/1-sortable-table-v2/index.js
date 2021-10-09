@@ -1,7 +1,6 @@
 export default class SortableTable {
   onClick = (e) => {
     const element = e.target.dataset.sortable ? e.target : e.target.closest('[data-sortable="true"]');
-    console.log('click', element.id);
     const order = element.dataset.order === 'desc' ? 'asc' : 'desc';
     this.sort(element.dataset.id, order);
   }
@@ -141,7 +140,6 @@ export default class SortableTable {
 
     this.subElements = this.getSubElements(this.element);
     this.addEventListeners();
-    console.log('dfsdfas', this.subElements.header.children.price.dataset.order);
   }
 
   addEventListeners() {
@@ -169,7 +167,6 @@ export default class SortableTable {
     this.headersConfig.forEach((el) => {
       if (el.id === field) {
         el.order = order;
-        console.log('sort', el.order);
         sortType = el.sortType;
       } else {
         el.order = false;

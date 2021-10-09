@@ -116,7 +116,6 @@ export default class SortableTable {
     [...root.querySelectorAll('[data-element]')].forEach((el) => {
       subElements[el.dataset.element] = el;
     });
-    console.log(subElements);
     return subElements;
   }
 
