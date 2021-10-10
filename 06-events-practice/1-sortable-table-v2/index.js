@@ -2,8 +2,10 @@ export default class SortableTable {
   onClick = (e) => {
     const element = e.target.dataset.sortable ? e.target : e.target.closest('[data-sortable="true"]');
     const order = element.dataset.order === 'desc' ? 'asc' : 'desc';
+    element.append(this.subElements.arrow);
     this.sort(element.dataset.id, order);
   }
+
   constructor(headersConfig, {
     data = [],
     sorted = {},
@@ -14,6 +16,7 @@ export default class SortableTable {
     this.sorted = sorted;
     this.isSortLocally = isSortLocally;
 
+    this.render();
     this.sort();
   }
 
@@ -65,6 +68,10 @@ export default class SortableTable {
     `;
   }
 
+  addArrow() {
+    this.subElements.header
+  }
+
   getDefaultCellTemplate(value) {
     return `
       <div class="sortable-table__cell">${value}</div>
@@ -75,8 +82,8 @@ export default class SortableTable {
     return `<a href="/products/3d-ochki-epson-elpgs03" class="sortable-table__row">${cells}</a>`;
   }
 
-  createBody() {
-    const rows = this.data.map((dataItem) => {
+  getRows() {
+    return this.data.map((dataItem) => {
       const cells = [];
       this.headersConfig.forEach((item) => {
         const value = dataItem[item.id];
@@ -85,40 +92,16 @@ export default class SortableTable {
       });
       return this.getRow(cells.join(''));
     });
-    this.body = `<div data-element="body" class="sortable-table__body">${rows.join('')}</div>`;
+  }
+
+  createBody() {
+    this.body = `<div data-element="body" class="sortable-table__body">${this.getRows().join('')}</div>`;
   }
 
   toHTML(htmlString) {
     const htmlObject = document.createElement('div');
     htmlObject.innerHTML = htmlString;
     return htmlObject.firstElementChild;
-  }
-
-  sortFunctions = {
-    string: (arr, key, order = 'asc') => {
-      arr.sort((a, b) => {
-        let result = a[key].localeCompare(b[key], ['ru-RU', 'es-US'], {
-          localeMatcher: 'lookup',
-          caseFirst: 'upper',
-        });
-        if (order === 'desc') result *= -1;
-        return result;
-      });
-    },
-    number: (arr, key, order = 'asc') => {
-      arr.sort((a, b) => {
-        let result = a[key] - b[key];
-        if (order === 'desc') result *= -1;
-        return result;
-      });
-    },
-    date: (arr, key, order = 'asc') => {
-      arr.sort((a, b) => {
-        let result = new Date(b[key]) - new Date(a[key]);
-        if (order === 'desc') result *= -1;
-        return result;
-      });
-    }
   }
 
   getSubElements(root) {
@@ -159,6 +142,8 @@ export default class SortableTable {
     } else {
       this.sortOnServer(field, order);
     }
+
+    this.subElements.body.innerHTML = this.getRows().join('');
   }
 
   sortOnClient(field, order) {
@@ -176,8 +161,33 @@ export default class SortableTable {
     if (!sortType) return;
 
     this.sortFunctions[sortType](this.data, field, order);
+  }
 
-    this.render();
+  sortFunctions = {
+    string: (arr, key, order = 'asc') => {
+      arr.sort((a, b) => {
+        let result = a[key].localeCompare(b[key], ['ru-RU', 'es-US'], {
+          localeMatcher: 'lookup',
+          caseFirst: 'upper',
+        });
+        if (order === 'desc') result *= -1;
+        return result;
+      });
+    },
+    number: (arr, key, order = 'asc') => {
+      arr.sort((a, b) => {
+        let result = a[key] - b[key];
+        if (order === 'desc') result *= -1;
+        return result;
+      });
+    },
+    date: (arr, key, order = 'asc') => {
+      arr.sort((a, b) => {
+        let result = new Date(b[key]) - new Date(a[key]);
+        if (order === 'desc') result *= -1;
+        return result;
+      });
+    }
   }
 
   sortOnServer(field, order) {}
