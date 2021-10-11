@@ -21,7 +21,7 @@ export default class NotificationMessage {
     `;
   }
 
-  timer() {
+  setTimer() {
     setTimeout(() => {
       this.destroy();
     }, this.duration);
@@ -37,7 +37,7 @@ export default class NotificationMessage {
     if (NotificationMessage.currentNotification) NotificationMessage.currentNotification.destroy();
     target.append(this.element);
     clearTimeout(NotificationMessage.timer);
-    NotificationMessage.timer = this.timer();
+    NotificationMessage.timer = this.setTimer();
     NotificationMessage.currentNotification = this;
   }
 

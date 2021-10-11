@@ -7,7 +7,7 @@ export default class SortableTable {
     this.render();
   }
 
-  get _template() {
+  get template() {
     return `
       <div data-element="productsContainer" class="products-list__container">
         <div class="sortable-table">
@@ -30,7 +30,7 @@ export default class SortableTable {
     `;
   }
 
-  get _arrowTemplate() {
+  get arrowTemplate() {
     return `
       <span data-element="arrow" class="sortable-table__sort-arrow">
         <span class="sort-arrow"></span>
@@ -38,57 +38,53 @@ export default class SortableTable {
     `;
   }
 
-  _getHeaderCell({id = '', title = '', sortable = false, order = false} = {}) {
+  getHeaderCell({id = '', title = '', sortable = false, order = false} = {}) {
     return `
       <div class="sortable-table__cell" data-id="${id}" data-sortable="${sortable}"
         ${order ? `data-order="${order}"` : ''}>
         <span>${title}</span>
-        ${order ? this._arrowTemplate : ''}
+        ${order ? this.arrowTemplate : ''}
       </div>
     `;
   }
 
-  _createHeader() {
-    const headerCells = [];
-    this.headerConfig.forEach((item) => {
-      headerCells.push(this._getHeaderCell(item));
-    });
+  createHeader() {
+    const headerCells = this.headerConfig.map((item) => this.getHeaderCell(item));
     this.header = `
       <div data-element="header" class="sortable-table__header sortable-table__row">${headerCells.join('')}</div>
     `;
   }
 
-  _getDefaultCellTemplate(value) {
+  getDefaultCellTemplate(value) {
     return `
       <div class="sortable-table__cell">${value}</div>
     `;
   }
 
-  _getRow(cells) {
+  getRow(cells) {
     return `<a href="/products/3d-ochki-epson-elpgs03" class="sortable-table__row">${cells}</a>`;
   }
 
-  _createBody() {
-    const rows = [];
-    this.data.forEach((dataItem) => {
+  createBody() {
+    const rows = this.data.map((dataItem) => {
       const cells = [];
       this.headerConfig.forEach((item) => {
         const value = dataItem[item.id];
-        const cell = item.template ? item.template(value) : this._getDefaultCellTemplate(value);
+        const cell = item.template ? item.template(value) : this.getDefaultCellTemplate(value);
         cells.push(cell);
       });
-      rows.push(this._getRow(cells.join('')));
+      return this.getRow(cells.join(''));
     });
     this.body = `<div data-element="body" class="sortable-table__body">${rows.join('')}</div>`;
   }
 
-  _toHTML(htmlString) {
+  toHTML(htmlString) {
     const htmlObject = document.createElement('div');
     htmlObject.innerHTML = htmlString;
     return htmlObject.firstElementChild;
   }
 
-  _sortFunctions = {
+  sortFunctions = {
     string: (arr, key, order = 'asc') => {
       arr.sort((a, b) => {
         let result = a[key].localeCompare(b[key], ['ru-RU', 'es-US'], {
@@ -115,23 +111,24 @@ export default class SortableTable {
     }
   }
 
-  get subElements() {
-    return {
-      header: this._toHTML(this.header),
-      body: this._toHTML(this.body),
-    };
+  getSubElements(root) {
+    const subElements = {};
+    [...root.querySelectorAll('[data-element]')].forEach((el) => {
+      subElements[el.dataset.element] = el;
+    });
+    return subElements;
   }
 
   render() {
-    const wrapper = document.createElement('div');
-    this._createHeader();
-    this._createBody();
+    this.createHeader();
+    this.createBody();
 
     this.lastElement = this.element;
-
-    this.element = this._toHTML(this._template);
+    this.element = this.toHTML(this.template);
 
     if (this.lastElement) this.lastElement.replaceWith(this.element);
+
+    this.subElements = this.getSubElements(this.element);
   }
 
   sort(field, order) {
@@ -148,7 +145,7 @@ export default class SortableTable {
 
     if (!sortType) return;
 
-    this._sortFunctions[sortType](this.data, field, order);
+    this.sortFunctions[sortType](this.data, field, order);
 
     this.render();
   }
