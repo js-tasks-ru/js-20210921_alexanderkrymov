@@ -26,7 +26,6 @@ export default class ColumnChart {
   }
 
   async update(from, to) {
-    console.log(from, to);
     const params = new URLSearchParams({ from, to });
     const response = await fetch(`${BACKEND_URL}${this.url}?${params}`);
     if (response.ok) {
