@@ -65,37 +65,45 @@ export default class ProductForm {
   }
 
   async create(data, url) {
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: data,
-    });
-    const json = await response.json();
+    try {
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: data,
+      });
+      const product = await response.json();
 
-    this.element.dispatchEvent(new CustomEvent('product-saved', {
-      detail: { product: json }
-    }));
+      this.element.dispatchEvent(new CustomEvent('product-saved', {
+        detail: { product }
+      }));
 
-    return json;
+      return product;
+    } catch (error) {
+      console.error('Create product', error);
+    }
   }
 
   async update(data, url) {
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: data,
-    });
-    const json = await response.json();
+    try {
+      const response = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: data,
+      });
+      const product = await response.json();
 
-    this.element.dispatchEvent(new CustomEvent('product-updated', {
-      detail: { product: json }
-    }));
+      this.element.dispatchEvent(new CustomEvent('product-updated', {
+        detail: { product }
+      }));
 
-    return json;
+      return product;
+    } catch (error) {
+      console.error('Update product', error);
+    }
   }
 
   getFormData() {

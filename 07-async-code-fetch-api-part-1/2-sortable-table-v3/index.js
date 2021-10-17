@@ -176,12 +176,14 @@ export default class SortableTable {
       _start: start,
       _end: end
     });
-    const response = await fetch(`${BACKEND_URL}/${this.url}?${params}`);
 
-    if (response.ok) {
+    try {
+      const response = await fetch(`${BACKEND_URL}/${this.url}?${params}`);
       const data = await response.json();
       this.removeLoader();
       return data;
+    } catch (error) {
+      console.error('loadData', error);
     }
   }
 
