@@ -1,27 +1,29 @@
 class Tooltip {
   static instance;
 
-  onPointerOver = (e) => {
-    if (!e.target.dataset.tooltip) return;
-    this.render(e.target.dataset.tooltip);
-    e.target.addEventListener('pointermove', this.onPointerMove);
+  onPointerOver = (event) => {
+    const tooltipValue = event.target.closest('[data-tooltip]').dataset.tooltip;
+    if (!tooltipValue) return;
+    this.render(tooltipValue);
+    event.target.addEventListener('pointermove', this.onPointerMove);
   }
 
-  onPointerOut = (e) => {
-    if (!e.target.dataset.tooltip) return;
+  onPointerOut = (event) => {
+    const tooltipValue = event.target.closest('[data-tooltip]').dataset.tooltip;
+    if (!tooltipValue) return;
     this.remove();
-    e.target.removeEventListener('pointermove', this.onPointerMove);
+    event.target.removeEventListener('pointermove', this.onPointerMove);
   }
 
-  onPointerMove = (e) => {
-    this.element.style.top = `${e.y + 10}px`;
-    this.element.style.left = `${e.x + 10}px`;
+  onPointerMove = (event) => {
+    const offset = 10;
+    this.element.style.top = `${event.y + offset}px`;
+    this.element.style.left = `${event.x + offset}px`;
   }
 
   constructor () {
     if (Tooltip.instance) return Tooltip.instance;
     Tooltip.instance = this;
-    return Tooltip.instance;
   }
 
   getTemplate(message) {

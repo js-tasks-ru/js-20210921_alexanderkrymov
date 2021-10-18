@@ -1,7 +1,8 @@
 export default class SortableTable {
   onClick = (e) => {
-    const element = e.target.dataset.sortable ? e.target : e.target.closest('[data-sortable="true"]');
-    const order = element.dataset.order === 'desc' ? 'asc' : 'desc';
+    const element = e.target.closest('[data-sortable="true"]');
+    const order = this.toggleOrder(element.dataset.order);
+    element.dataset.order = order;
     element.append(this.subElements.arrow);
     this.sort(element.dataset.id, order);
   }
@@ -16,8 +17,8 @@ export default class SortableTable {
     this.sorted = sorted;
     this.isSortLocally = isSortLocally;
 
-    this.render();
     this.sort();
+    this.render();
   }
 
   get template() {
@@ -68,10 +69,6 @@ export default class SortableTable {
     `;
   }
 
-  addArrow() {
-    this.subElements.header
-  }
-
   getDefaultCellTemplate(value) {
     return `
       <div class="sortable-table__cell">${value}</div>
@@ -84,11 +81,10 @@ export default class SortableTable {
 
   getRows() {
     return this.data.map((dataItem) => {
-      const cells = [];
-      this.headersConfig.forEach((item) => {
+      const cells = this.headersConfig.map((item) => {
         const value = dataItem[item.id];
         const cell = item.template ? item.template(value) : this.getDefaultCellTemplate(value);
-        cells.push(cell);
+        return cell;
       });
       return this.getRow(cells.join(''));
     });
@@ -102,6 +98,15 @@ export default class SortableTable {
     const htmlObject = document.createElement('div');
     htmlObject.innerHTML = htmlString;
     return htmlObject.firstElementChild;
+  }
+
+  toggleOrder(order) {
+    const orders = {
+      asc: 'desc',
+      desc: 'asc'
+    };
+
+    return orders[order] || 'desc';
   }
 
   getSubElements(root) {
@@ -142,8 +147,6 @@ export default class SortableTable {
     } else {
       this.sortOnServer(field, order);
     }
-
-    this.subElements.body.innerHTML = this.getRows().join('');
   }
 
   sortOnClient(field, order) {
@@ -161,6 +164,7 @@ export default class SortableTable {
     if (!sortType) return;
 
     this.sortFunctions[sortType](this.data, field, order);
+    if (this.subElements && this.subElements.body) this.subElements.body.innerHTML = this.getRows().join('');
   }
 
   sortFunctions = {
