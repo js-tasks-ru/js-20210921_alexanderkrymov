@@ -252,6 +252,10 @@ export default class ProductForm {
     this.subElements.productForm.addEventListener('submit', this.onSubmit);
   }
 
+  removeEventListeners() {
+    this.subElements.productForm.removeEventListener('submit', this.onSubmit);
+  }
+
   remove() {
     if (this.element) this.element.remove();
     this.element = null;
@@ -259,6 +263,7 @@ export default class ProductForm {
 
   destroy() {
     this.remove();
+    this.removeEventListeners();
   }
 
   toHTML(htmlString) {
