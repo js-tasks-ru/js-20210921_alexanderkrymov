@@ -15,12 +15,12 @@ export default class ProductForm {
   }
 
   async render () {
-    let categories = await this.loadCategories();
-    let productData = {};
+    const requests = [
+      this.loadCategories(),
+    ];
+    if (this.productId) requests.push(this.loadProductData());
 
-    if (this.productId) {
-      productData = await this.loadProductData();
-    }
+    const [categories, productData = {}] = await Promise.all(requests);
 
     if (this.element) this.element.replaceWith(this.toHTML(this.getTemplate(productData, categories)));
     else this.element = this.toHTML(this.getTemplate(productData, categories));
