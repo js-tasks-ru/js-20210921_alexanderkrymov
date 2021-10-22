@@ -26,10 +26,12 @@ export default class ColumnChart {
   }
 
   async update(from, to) {
-    const params = new URLSearchParams({ from, to });
-    const response = await fetch(`${BACKEND_URL}${this.url}?${params}`);
-    if (response.ok) {
-      const data = await response.json();
+    const url = new URL(this.url, BACKEND_URL);
+    url.searchParams.set('from', from);
+    url.searchParams.set('to', to);
+
+    try {
+      const data = await fetchJson(url);
       this.data = Object.values(data);
       this.maxValue = Math.max(...this.data);
       this.value = this.data.reduce((acc, val) => acc += val, 0);
@@ -41,6 +43,8 @@ export default class ColumnChart {
       this.element.classList.remove('column-chart_loading');
 
       return data;
+    } catch (error) {
+      console.error(error);
     }
   }
 
