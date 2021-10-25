@@ -58,6 +58,8 @@ export default class ProductForm {
   constructor (productId) {
     this.productId = productId;
     this.images = [];
+    this.productsUrl = new URL('api/rest/products  ', BACKEND_URL);
+    this.categoriesUrl = new URL('api/rest/categories  ', BACKEND_URL);
   }
 
   async render () {
@@ -92,10 +94,9 @@ export default class ProductForm {
   }
 
   async loadProductData() {
-    const url = new URL('api/rest/products', BACKEND_URL);
-    url.searchParams.set('id', this.productId);
+    this.productsUrl.searchParams.set('id', this.productId);
 
-    const response = await fetch(url.href);
+    const response = await fetch(this.productsUrl.toString());
     const json = await response.json();
     this.productData = json[0];
 
@@ -103,11 +104,10 @@ export default class ProductForm {
   }
 
   async loadCategories() {
-    const url = new URL('api/rest/categories  ', BACKEND_URL);
-    url.searchParams.set('_sort', 'weight');
-    url.searchParams.set('_refs', 'subcategory');
+    this.categoriesUrl.searchParams.set('_sort', 'weight');
+    this.categoriesUrl.searchParams.set('_refs', 'subcategory');
 
-    const response = await fetch(url.href);
+    const response = await fetch(this.categoriesUrl.toString());
     const json = await response.json();
 
     return json;
@@ -115,12 +115,11 @@ export default class ProductForm {
 
   async save() {
     const formData = this.getFormData();
-    const url = new URL('api/rest/products  ', BACKEND_URL);
 
     if (this.productId) {
-      await this.update(formData, url.href);
+      await this.update(formData, this.productsUrl.toString());
     } else {
-      await this.create(formData, url.href);
+      await this.create(formData, this.productsUrl.toString());
     }
   }
 
